@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import './equatable_utils.dart';
 
 /// You must define the [EquatableMixinBase] on the class
@@ -6,7 +8,7 @@ import './equatable_utils.dart';
 /// This exposes the `props` getter which can then be overridden to include custom props in subclasses.
 /// The `props` getter is used to override `==` and `hashCode` in the [EquatableMixin].
 mixin EquatableMixinBase on Object {
-  List get props => [];
+  Map<String, dynamic> get props => {};
 
   @override
   String toString() => super.toString();
@@ -29,5 +31,9 @@ mixin EquatableMixin on EquatableMixinBase {
   int get hashCode => runtimeType.hashCode ^ mapPropsToHashCode(props);
 
   @override
-  String toString() => props.isNotEmpty ? props.toString() : super.toString();
+  String toString() => props.isNotEmpty
+      ? JsonEncoder.withIndent('  ').convert(props)
+      : super.toString();
+
+  Map<String, dynamic> toJson() => props;
 }
