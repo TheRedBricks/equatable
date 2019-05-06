@@ -7,7 +7,11 @@ class LoginEvent extends Equatable {
   final String username;
   final String password;
 
-  LoginEvent({this.username, this.password}) : super([username, password]);
+  LoginEvent({this.username, this.password})
+      : super({
+          'username': username,
+          'password': password,
+        });
 }
 
 class LoginEventRaw {
