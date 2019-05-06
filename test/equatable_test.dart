@@ -11,20 +11,20 @@ class EmptyEquatable extends Equatable {}
 class SimpleEquatable<T> extends Equatable {
   final T data;
 
-  SimpleEquatable(this.data) : super([data]);
+  SimpleEquatable(this.data) : super({'data': data});
 }
 
 class MultipartEquatable<T> extends Equatable {
   final T d1;
   final T d2;
 
-  MultipartEquatable(this.d1, this.d2) : super([d1, d2]);
+  MultipartEquatable(this.d1, this.d2) : super({'d1': d1, 'd2': d2});
 }
 
 class OtherEquatable extends Equatable {
   final String data;
 
-  OtherEquatable(this.data) : super([data]);
+  OtherEquatable(this.data) : super({'data': data});
 }
 
 enum Color { blonde, black, brown }
@@ -32,38 +32,38 @@ enum Color { blonde, black, brown }
 class ComplexEquatable extends Equatable {
   final String name;
   final int age;
-  final Color hairColor;
   final List<String> children;
 
-  ComplexEquatable({this.name, this.age, this.hairColor, this.children})
-      : super([name, age, hairColor, children]);
+  ComplexEquatable({this.name, this.age, this.children})
+      : super({
+          'name': name,
+          'age': age,
+          'children': children,
+        });
 }
 
 class EquatableData extends Equatable {
   final String key;
   final dynamic value;
 
-  EquatableData({this.key, this.value}) : super([key, value]);
+  EquatableData({this.key, this.value}) : super({key: value});
 }
 
 class Credentials extends Equatable {
   final String username;
   final String password;
 
-  Credentials({this.username, this.password}) : super([username, password]);
+  Credentials({this.username, this.password})
+      : super({
+          'username': username,
+          'password': password,
+        });
 
   factory Credentials.fromJson(Map<String, dynamic> json) {
     return Credentials(
       username: json['username'] as String,
       password: json['password'] as String,
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['username'] = this.username;
-    data['password'] = this.password;
-    return data;
   }
 }
 
@@ -101,7 +101,7 @@ void main() {
   group('Simple Equatable (string)', () {
     test('should correct toString', () {
       final instance = SimpleEquatable('simple');
-      expect(instance.toString(), '[simple]');
+      expect(instance.toString(), '{\n  "data": "simple"\n}');
     });
 
     test('should return true when instance is the same', () {
@@ -146,7 +146,7 @@ void main() {
   group('Simple Equatable (number)', () {
     test('should correct toString', () {
       final instance = SimpleEquatable(0);
-      expect(instance.toString(), '[0]');
+      expect(instance.toString(), '{\n  "data": 0\n}');
     });
 
     test('should return true when instance is the same', () {
@@ -185,7 +185,7 @@ void main() {
   group('Simple Equatable (bool)', () {
     test('should correct toString', () {
       final instance = SimpleEquatable(true);
-      expect(instance.toString(), '[true]');
+      expect(instance.toString(), '{\n  "data": true\n}');
     });
 
     test('should return true when instance is the same', () {
@@ -227,7 +227,7 @@ void main() {
         key: 'foo',
         value: 'bar',
       ));
-      expect(instance.toString(), '[[foo, bar]]');
+      expect(instance.toString(), '{\n  "data": {\n    "foo": "bar"\n  }\n}');
     });
     test('should return true when instance is the same', () {
       final instance = SimpleEquatable(EquatableData(
@@ -286,7 +286,7 @@ void main() {
   group('Multipart Equatable', () {
     test('should correct toString', () {
       final instance = MultipartEquatable("s1", "s2");
-      expect(instance.toString(), '[s1, s2]');
+      expect(instance.toString(), '{\n  "d1": "s1",\n  "d2": "s2"\n}');
     });
     test('should return true when instance is the same', () {
       final instance = MultipartEquatable("s1", "s2");
@@ -332,16 +332,15 @@ void main() {
       final instance = ComplexEquatable(
         name: 'Joe',
         age: 40,
-        hairColor: Color.black,
         children: ['Bob'],
       );
-      expect(instance.toString(), '[Joe, 40, Color.black, [Bob]]');
+      expect(instance.toString(),
+          '{\n  "name": "Joe",\n  "age": 40,\n  "children": [\n    "Bob"\n  ]\n}');
     });
     test('should return true when instance is the same', () {
       final instance = ComplexEquatable(
         name: 'Joe',
         age: 40,
-        hairColor: Color.black,
         children: ['Bob'],
       );
       expect(instance == instance, true);
@@ -351,7 +350,6 @@ void main() {
       final instance = ComplexEquatable(
         name: 'Joe',
         age: 40,
-        hairColor: Color.black,
         children: ['Bob'],
       );
       expect(
@@ -359,7 +357,6 @@ void main() {
         instance.runtimeType.hashCode ^
             instance.name.hashCode ^
             instance.age.hashCode ^
-            instance.hairColor.hashCode ^
             instance.children[0].hashCode,
       );
     });
@@ -368,13 +365,11 @@ void main() {
       final instanceA = ComplexEquatable(
         name: 'Joe',
         age: 40,
-        hairColor: Color.black,
         children: ['Bob'],
       );
       final instanceB = ComplexEquatable(
         name: 'Joe',
         age: 40,
-        hairColor: Color.black,
         children: ['Bob'],
       );
       expect(instanceA == instanceB, true);
@@ -385,7 +380,6 @@ void main() {
       final instanceA = ComplexEquatable(
         name: 'Joe',
         age: 40,
-        hairColor: Color.black,
         children: ['Bob'],
       );
       final instanceB = NonEquatable();
@@ -396,13 +390,11 @@ void main() {
       final instanceA = ComplexEquatable(
         name: 'Joe',
         age: 40,
-        hairColor: Color.black,
         children: ['Bob'],
       );
       final instanceB = ComplexEquatable(
         name: 'John',
         age: 40,
-        hairColor: Color.brown,
         children: ['Bobby'],
       );
       expect(instanceA == instanceB, false);
@@ -419,7 +411,8 @@ void main() {
         }
         """,
       ) as Map<String, dynamic>);
-      expect(instance.toString(), '[Admin, admin]');
+      expect(instance.toString(),
+          '{\n  "username": "Admin",\n  "password": "admin"\n}');
     });
 
     test('should return true when instance is the same', () {
